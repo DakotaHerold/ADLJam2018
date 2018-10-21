@@ -9,10 +9,10 @@ namespace Jam
     [Serializable]
     public enum Areas
     {
-        Red,
-        Blue,
-        White,
-        Yellow
+        One,
+        Two,
+        Three,
+        Four
     }
 
     [Serializable]
