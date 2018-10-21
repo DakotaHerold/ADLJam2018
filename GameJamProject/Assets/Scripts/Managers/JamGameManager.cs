@@ -25,13 +25,14 @@ namespace Jam
             areaManager = GetComponent<AreaManager>();
             gameCanvasManager = FindObjectOfType<GameCanvasManager>();
             gameState = GAME_STATE.MENU;
+            InitializeGame(); 
         }
 
         public void InitializeGame()
         {
-            //areaManager.finishedAreas = areaManager.ConstructArea(dataManager.phrases);
-            //areaManager.finishedPersonTraits = areaManager.ConstructPeople(areaManager.NumPeople, dataManager.phrases); 
-            //gameCanvasManager.SpawnPeople(aream)
+            areaManager.finishedAreas = areaManager.ConstructArea(dataManager.phrases);
+            //areaManager.ConstructPeople(areaManager.NumPeople, dataManager.phrases);
+            //gameCanvasManager.SpawnPeople(areaManager.finishedPeople);
         }
 
         // Update is called once per frame

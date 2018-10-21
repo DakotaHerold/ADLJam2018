@@ -16,7 +16,16 @@ namespace Jam
     public struct AreaTrait
     {
         public Category category;
-        public Group group; 
+        public Group group;
+
+        public static bool operator ==(AreaTrait x, AreaTrait y)
+        {
+            return x.category == y.category && x.group == y.group;
+        }
+        public static bool operator !=(AreaTrait x, AreaTrait y)
+        {
+            return !(x == y);
+        }
     }
 
     public class AreaManager : MonoBehaviour
@@ -28,13 +37,13 @@ namespace Jam
         [HideInInspector]
         public AreaData[] finishedAreas;
         [HideInInspector]
-        public List<PersonTrait> finishedPersonTraits;
-        [HideInInspector]
         public List<List<PersonTrait>> finishedPeople; 
 
         private int numTraitsPerArea = 1; // Final needs to be two
         public int NumTraitsPerArea { get { return numTraitsPerArea; } }
-        private int numTotalTraitsToGenerate = 2; // Final needs to be 10 or more
+        private int numTraitsPerPerson = 3; 
+        public int NumTraitsPerPerson { get { return numTraitsPerPerson; } }
+        private int numTotalTraitsToGenerate = 20; // Final needs to be 10 or more
         public int NumTotalTraitsToGenerate { get { return numTotalTraitsToGenerate; } }
         private int numAreas = 4; 
         public int NumAreas { get { return numAreas; } }
@@ -58,24 +67,26 @@ namespace Jam
                 newGroup = Group.NotGroup;
             }
 
+
             newTrait.category = newCat;
-            newTrait.group = newGroup;
+            newTrait.group = newGroup; 
 
             return newTrait; 
         }
 
         public AreaData[] ConstructArea( PhraseData [] baseData)
         {
-            Dictionary<AreaTrait, string> phraseDictionary = new Dictionary<AreaTrait, string>();
+            //Dictionary<AreaTrait, string> phraseDictionary = new Dictionary<AreaTrait, string>();
 
-            for (int iPhrase = 0; iPhrase < baseData.Length; ++iPhrase)
-            {
-                AreaTrait phraseTrait;
-                phraseTrait.category = baseData[iPhrase].Category;
-                phraseTrait.group = baseData[iPhrase].Group;
 
-                phraseDictionary.Add(phraseTrait, baseData[iPhrase].Text); 
-            }
+            //for (int iPhrase = 0; iPhrase < baseData.Length; ++iPhrase)
+            //{
+            //    AreaTrait phraseTrait;
+            //    phraseTrait.category = baseData[iPhrase].Category;
+            //    phraseTrait.group = baseData[iPhrase].Group;
+
+            //    phraseDictionary.Add(phraseTrait, baseData[iPhrase].Text); 
+            //}
 
 
 
@@ -83,7 +94,7 @@ namespace Jam
             AreaData[] results = new AreaData[4];
             List<AreaTrait> usedTraits = new List<AreaTrait>();
 
-            // Constructing Traits - 
+            // Constructing Traits 
             for (int iTrait = 0; iTrait < numTotalTraitsToGenerate; ++iTrait)
             {
                  
@@ -119,14 +130,14 @@ namespace Jam
                 
                 for(int jTrait = 0; jTrait < numTraitsPerArea; ++jTrait)
                 {
-                    int randInt = UnityEngine.Random.Range(0, usedTraits.Count); 
+                    int randInt = UnityEngine.Random.Range(0, usedTraits.Count-1); 
                     AreaTrait trait = usedTraits[randInt]; 
 
                     for(int kTrait = 0; kTrait < newAreaData.areaTraits.Count; ++kTrait)
                     {
                         while(trait.category == newAreaData.areaTraits[kTrait].category)
                         {
-                            trait = usedTraits[UnityEngine.Random.Range(0, usedTraits.Count)];
+                            trait = usedTraits[UnityEngine.Random.Range(0, usedTraits.Count-1)];
                         }
                     }
 
@@ -152,11 +163,34 @@ namespace Jam
                     newAreaData.name = Areas.Four; 
                }
 
-                newAreaData.phrases = new List<string>(); 
-               foreach(AreaTrait trait in newAreaData.areaTraits)
-                {
-                    newAreaData.phrases.Add(phraseDictionary[trait]); 
-                }
+                newAreaData.phrases = new List<string>();
+
+                List<string> usedPhrases = new List<string>(); 
+
+               for(int iTrait = 0; iTrait < newAreaData.areaTraits.Count; ++iTrait)
+               {
+                    AreaTrait trait = newAreaData.areaTraits[iTrait];
+
+                    string phrase = ""; 
+                    while(phrase == "")
+                    {
+                        foreach(PhraseData phraseInfo in baseData)
+                        {
+                            if(phraseInfo.Category == trait.category && phraseInfo.Group == trait.group)
+                            {
+                                phrase = phraseInfo.Text;
+                                if(!usedPhrases.Contains(phrase))
+                                {
+                                    newAreaData.phrases.Add(phrase);
+                                    usedPhrases.Add(phrase); 
+                                }
+                            }
+                        }
+                    }
+
+                    //newAreaData.phrases.Add(phraseDictionary[trait]); 
+                    
+               }
 
                 results[iArea] = newAreaData; 
             }
@@ -164,7 +198,7 @@ namespace Jam
             return results;
         }
 
-        public List<PersonTrait> ConstructPeople(int numPeople, PhraseData[] baseData)
+        public void ConstructPeople(int numPeople, PhraseData[] baseData)
         {
             List<PersonTrait> possiblePeopleTraits = new List<PersonTrait>(); 
             foreach(PhraseData phrase in baseData)
@@ -182,24 +216,25 @@ namespace Jam
             int numPeoplePerArea = Mathf.CeilToInt(numPeople / numAreas);
             Debug.Log("Num people per area: " + numPeoplePerArea);
 
-            List<PersonTrait> results = new List<PersonTrait>(); 
+            List<PersonTrait> sortedTraits = new List<PersonTrait>();
+            //List<PersonTrait> sortedNegativeTraits = new List<PersonTrait>(); 
 
             foreach(AreaData area in finishedAreas)
             {
                 foreach(AreaTrait areaTrait in area.areaTraits)
                 {
-                    foreach(PersonTrait person in possiblePeopleTraits)
+                    foreach(PersonTrait personTrait in possiblePeopleTraits)
                     {
-                        if(areaTrait.category == person.Category)
+                        if(areaTrait.category == personTrait.Category)
                         {
-                            if(areaTrait.group == Group.NotGroup && person.groupType == Group.NotIndividual)
+                            if(areaTrait.group == Group.NotGroup && personTrait.groupType == Group.NotIndividual)
                             {
-                                results.Add(person);
+                                sortedTraits.Add(personTrait);
                                 break; 
                             }
-                            else if(areaTrait.group == Group.Group && person.groupType == Group.Individual)
+                            else if(areaTrait.group == Group.Group && personTrait.groupType == Group.Individual)
                             {
-                                results.Add(person);
+                                sortedTraits.Add(personTrait);
                                 break; 
                             }
                         }
@@ -208,8 +243,39 @@ namespace Jam
             }
 
 
-            return results; 
+            // Divide traits
+            List<List<PersonTrait>> finalizedPeople = new List<List<PersonTrait>>(); 
+            for(int iPerson = 0; iPerson < numPeople; ++iPerson)
+            {
+                List<PersonTrait> personsInfo = new List<PersonTrait>();
+                List<Category> usedCategories = new List<Category>(); 
+                for (int jTrait = 0; jTrait < numTraitsPerPerson; ++jTrait)
+                {
+                    bool passed = false;
+                    PersonTrait trait;
+                    while (!passed)
+                    {
+                        passed = true; 
+                        trait = sortedTraits[UnityEngine.Random.Range(0, sortedTraits.Count-1)]; 
+                        if(usedCategories.Contains(trait.Category))
+                        {
+                            passed = false; 
+                        }
+                        else
+                        {
+                            usedCategories.Add(trait.Category); 
+                        }
+                    }
+                    
+                }
+                finalizedPeople.Add(personsInfo); 
+            }
+
+            finishedPeople = finalizedPeople; 
+            
         }
+
+        
 
         public List<Areas> GetPersonSuccessAreas(Person person)
         {
