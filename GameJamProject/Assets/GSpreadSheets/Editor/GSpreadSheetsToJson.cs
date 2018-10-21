@@ -52,7 +52,7 @@ public class GSpreadSheetsToJson : EditorWindow {
 	/// Key of the spreadsheet. Get from url of the spreadsheet.
 	/// </summary>
 	[SerializeField]
-	private string spreadSheetKey = "1nOofvcc6dlVCwSVL6fFb5y8NrrlkvsuFm3oppXj8Pvs";
+	private string spreadSheetKey = "";
 
 	/// <summary>
 	/// List of sheet names which want to download and convert to json file
@@ -74,7 +74,7 @@ public class GSpreadSheetsToJson : EditorWindow {
 	/// The directory which contain json files.
 	/// </summary>
 	[SerializeField]
-	private string outputDir = "./Assets/StreamingAssets";
+	private string outputDir = "./Assets/Resources/JsonData/";
 
 	/// <summary>
 	/// The data types which is allowed to convert from sheet to json object
@@ -481,15 +481,11 @@ public class GSpreadSheetsToJson : EditorWindow {
 		if(!outputDirectory.EndsWith("/"))
 			outputDirectory += "/";
 		Directory.CreateDirectory(outputDirectory);
-		StreamWriter strmWriter = new StreamWriter(outputDirectory + fileName + ".json", false, System.Text.Encoding.UTF8);
+		StreamWriter strmWriter = new StreamWriter(outputDirectory + fileName + ".txt", false, System.Text.Encoding.UTF8);
+		strmWriter.Write(jsonText);
+		strmWriter.Close();
 
-        string appendFront = "{\"" + fileName + "\": ";
-        string appendEnd = "}";
-        strmWriter.Write(appendFront + jsonText + appendEnd);
-
-        strmWriter.Close();
-
-        Debug.Log ("Created: " + fileName + ".json");
+		Debug.Log ("Created: " + fileName + ".txt");
 	}
 
 	UserCredential GetCredential()
