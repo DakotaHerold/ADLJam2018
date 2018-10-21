@@ -24,8 +24,8 @@ namespace Jam
         public DataManager dataManager;
         private AreaData[] finishedAreas; 
 
-        public int numTraitsPerArea = 2;
-        public int numTotalTraitsToGenerate = 10;
+        private int numTraitsPerArea = 1; // Final needs to be two
+        private int numTotalTraitsToGenerate = 2; // Final needs to be 10 or more
         private int NumAreas = 4; 
 
         private AreaTrait GenerateTrait()
@@ -35,7 +35,7 @@ namespace Jam
             Category newCat = (Category)values.GetValue(UnityEngine.Random.Range(0, values.Length));
 
             Group newGroup;
-            int randInt = UnityEngine.Random.Range(0, 1);
+            int randInt = UnityEngine.Random.Range(0, 2);
             if (randInt == 0)
             {
                 newGroup = Group.Group;
