@@ -22,6 +22,7 @@ public abstract class SimpleProceduralSound : ProceduralSound
 		Source.time = 0;
 		Source.Play();
 		IsPlaying = true;
+        Debug.Log(Source.name);
 		Debug.Log ("Playing Simple Procedural Sound");
 	}
 

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 
 public class TriggerSoundGenerator : MonoBehaviour {
-	public GameObject TriggerSoundPrefab;
+	//public GameObject TriggerSoundPrefab;
 	public List<string> Keys;
 	public int index = 0;
 

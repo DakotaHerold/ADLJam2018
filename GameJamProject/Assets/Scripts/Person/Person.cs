@@ -17,7 +17,17 @@ namespace Jam
 
         Image uiImage;
         bool inRange = false;
-        bool active = false;
+        private bool active = false;
+        public bool Active{
+            get { return active; }
+            set { 
+                active = value;
+                if (value)
+                    GameObject.Find("PickupSoundGenerator").GetComponent<TriggerSoundGenerator>().GenerateSound();
+                else
+                    GameObject.Find("PlaceSoundGenerator").GetComponent<TriggerSoundGenerator>().GenerateSound();
+            }
+        }
         private AreaUI[] areas; 
 
         // Use this for initialization

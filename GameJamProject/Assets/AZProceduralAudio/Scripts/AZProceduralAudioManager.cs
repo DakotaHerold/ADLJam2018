@@ -69,6 +69,7 @@ public class AZProceduralAudioManager : MonoBehaviour {
 			Sounds [key].Play ();
 		} 
 		else {
+            Debug.Log("Key: " + key);
 			Debug.LogError ("Unassigned Exception: Sound is not contained in the AudioManager's collection.\n");
 		}
 	}
