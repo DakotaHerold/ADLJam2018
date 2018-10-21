@@ -4,9 +4,10 @@ using UnityEngine;
 
 namespace Jam
 {
-    public struct Trait
+    public struct PersonTrait
     {
         public string Phrase;
-        public Areas PhraseArea;
+        public Category Category;
+        public Group groupType; 
     }
 }
