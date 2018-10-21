@@ -139,7 +139,7 @@ GameObject:
   - component: {fileID: 4992784204194304}
   - component: {fileID: 114597079420154444}
   m_Layer: 0
-  m_Name: AZPAM Audio Manager+preset 1
+  m_Name: AZPAM Audio Manager+preset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
