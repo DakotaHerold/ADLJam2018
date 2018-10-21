@@ -31,8 +31,8 @@ namespace Jam
         public void InitializeGame()
         {
             areaManager.finishedAreas = areaManager.ConstructArea(dataManager.phrases);
-            areaManager.ConstructPeople(areaManager.NumPeople, dataManager.phrases);
-            gameCanvasManager.SpawnPeople(areaManager.finishedPeople); 
+            //areaManager.ConstructPeople(areaManager.NumPeople, dataManager.phrases);
+            //gameCanvasManager.SpawnPeople(areaManager.finishedPeople);
         }
 
         // Update is called once per frame

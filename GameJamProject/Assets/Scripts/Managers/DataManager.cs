@@ -27,8 +27,7 @@ namespace Jam
         Sports,
         Cooking,
         Movies,
-        Reading,
-        WrongParse
+        Reading
     }
 
     [Serializable]
@@ -37,8 +36,7 @@ namespace Jam
         Individual,
         Group,
         NotGroup,
-        NotIndividual,
-        WrongParse
+        NotIndividual
     }
 
     [Serializable]
@@ -123,12 +121,17 @@ namespace Jam
             phrases = new PhraseData[readData.Length]; 
             for(int iData = 0; iData < readData.Length; ++iData)
             {
-                PhraseReadData data = readData[iData]; 
-                Category cat = Category.WrongParse;
+                PhraseReadData data = readData[iData];
+                Category cat;
                 cat = (Category)Enum.Parse(typeof(Category), data.Category, true);
 
-                Group newGroup = Group.WrongParse;
+                Group newGroup;
                 newGroup = (Group)Enum.Parse(typeof(Group), data.Group, true);
+
+                //if(cat == Category.WrongParse || newGroup == Group.WrongParse)
+                //{
+                //    Debug.Log("Error in data gen"); 
+                //}
 
                 phrases[iData] = new PhraseData(); 
                 phrases[iData].Category = cat;

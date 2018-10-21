@@ -17,11 +17,10 @@ namespace Jam
     {
         public Category category;
         public Group group;
-        public float id;
 
         public static bool operator ==(AreaTrait x, AreaTrait y)
         {
-            return x.category == y.category && x.group == y.group && x.id == y.id;
+            return x.category == y.category && x.group == y.group;
         }
         public static bool operator !=(AreaTrait x, AreaTrait y)
         {
@@ -44,14 +43,12 @@ namespace Jam
         public int NumTraitsPerArea { get { return numTraitsPerArea; } }
         private int numTraitsPerPerson = 3; 
         public int NumTraitsPerPerson { get { return numTraitsPerPerson; } }
-        private int numTotalTraitsToGenerate = 2; // Final needs to be 10 or more
+        private int numTotalTraitsToGenerate = 20; // Final needs to be 10 or more
         public int NumTotalTraitsToGenerate { get { return numTotalTraitsToGenerate; } }
         private int numAreas = 4; 
         public int NumAreas { get { return numAreas; } }
         private int numPeople; 
         public int NumPeople { get { return numPeople; } }
-
-        private List<float> usedIds = new List<float>(); 
 
         private AreaTrait GenerateTrait()
         {
@@ -70,33 +67,26 @@ namespace Jam
                 newGroup = Group.NotGroup;
             }
 
+
             newTrait.category = newCat;
-            newTrait.group = newGroup;
-            float rand = -1;
-            newTrait.id = rand; 
+            newTrait.group = newGroup; 
 
             return newTrait; 
         }
 
         public AreaData[] ConstructArea( PhraseData [] baseData)
         {
-            Dictionary<AreaTrait, string> phraseDictionary = new Dictionary<AreaTrait, string>();
+            //Dictionary<AreaTrait, string> phraseDictionary = new Dictionary<AreaTrait, string>();
 
 
-            for (int iPhrase = 0; iPhrase < baseData.Length; ++iPhrase)
-            {
-                AreaTrait phraseTrait;
-                phraseTrait.category = baseData[iPhrase].Category;
-                phraseTrait.group = baseData[iPhrase].Group;
-                float rand = 0;
-                while (usedIds.Contains(rand) && rand == 0)
-                {
-                    rand = UnityEngine.Random.Range(0, float.MaxValue);
-                }
-                phraseTrait.id = rand;
+            //for (int iPhrase = 0; iPhrase < baseData.Length; ++iPhrase)
+            //{
+            //    AreaTrait phraseTrait;
+            //    phraseTrait.category = baseData[iPhrase].Category;
+            //    phraseTrait.group = baseData[iPhrase].Group;
 
-                phraseDictionary.Add(phraseTrait, baseData[iPhrase].Text); 
-            }
+            //    phraseDictionary.Add(phraseTrait, baseData[iPhrase].Text); 
+            //}
 
 
 
@@ -104,7 +94,7 @@ namespace Jam
             AreaData[] results = new AreaData[4];
             List<AreaTrait> usedTraits = new List<AreaTrait>();
 
-            // Constructing Traits - 
+            // Constructing Traits 
             for (int iTrait = 0; iTrait < numTotalTraitsToGenerate; ++iTrait)
             {
                  
@@ -140,14 +130,14 @@ namespace Jam
                 
                 for(int jTrait = 0; jTrait < numTraitsPerArea; ++jTrait)
                 {
-                    int randInt = UnityEngine.Random.Range(0, usedTraits.Count); 
+                    int randInt = UnityEngine.Random.Range(0, usedTraits.Count-1); 
                     AreaTrait trait = usedTraits[randInt]; 
 
                     for(int kTrait = 0; kTrait < newAreaData.areaTraits.Count; ++kTrait)
                     {
                         while(trait.category == newAreaData.areaTraits[kTrait].category)
                         {
-                            trait = usedTraits[UnityEngine.Random.Range(0, usedTraits.Count)];
+                            trait = usedTraits[UnityEngine.Random.Range(0, usedTraits.Count-1)];
                         }
                     }
 
@@ -173,11 +163,32 @@ namespace Jam
                     newAreaData.name = Areas.Four; 
                }
 
-                newAreaData.phrases = new List<string>(); 
+                newAreaData.phrases = new List<string>();
+
+                List<string> usedPhrases = new List<string>(); 
+
                for(int iTrait = 0; iTrait < newAreaData.areaTraits.Count; ++iTrait)
                {
                     AreaTrait trait = newAreaData.areaTraits[iTrait];
-                    newAreaData.phrases.Add(phraseDictionary[trait]); 
+
+                    string phrase = ""; 
+                    while(phrase == "")
+                    {
+                        foreach(PhraseData phraseInfo in baseData)
+                        {
+                            if(phraseInfo.Category == trait.category && phraseInfo.Group == trait.group)
+                            {
+                                phrase = phraseInfo.Text;
+                                if(!usedPhrases.Contains(phrase))
+                                {
+                                    newAreaData.phrases.Add(phrase);
+                                    usedPhrases.Add(phrase); 
+                                }
+                            }
+                        }
+                    }
+
+                    //newAreaData.phrases.Add(phraseDictionary[trait]); 
                     
                }
 
@@ -245,7 +256,7 @@ namespace Jam
                     while (!passed)
                     {
                         passed = true; 
-                        trait = sortedTraits[UnityEngine.Random.Range(0, sortedTraits.Count)]; 
+                        trait = sortedTraits[UnityEngine.Random.Range(0, sortedTraits.Count-1)]; 
                         if(usedCategories.Contains(trait.Category))
                         {
                             passed = false; 
