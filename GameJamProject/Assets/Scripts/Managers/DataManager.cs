@@ -60,9 +60,12 @@ namespace Jam
     {
         private string WrittenDataPath = "WrittenData";
 
-        private void Start()
+        [HideInInspector]
+        public PhraseData[] phrases; 
+
+        private void Awake()
         {
-            PhraseData[] phrases = PhraseDataContainer.Load(WrittenDataPath).WrittenData;
+            phrases = PhraseDataContainer.Load(WrittenDataPath).WrittenData;
             //if (phrases == null)
             //    Debug.Log("Null phrases");
             //else
