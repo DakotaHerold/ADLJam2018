@@ -88,18 +88,20 @@ namespace Jam
             readData = PhraseDataContainer.Load(WrittenDataPath).WrittenData;
             ConvertReadFormat(readData);
 
-            if (phrases == null)
-                Debug.Log("Null phrases");
-            else
-            {
-                foreach (PhraseData phrase in phrases)
-                {
-                    Debug.Log("Category: " + phrase.Category);
-                    Debug.Log("Type: " + phrase.Group);
-                    Debug.Log("Text: " + phrase.Text);
-                    Debug.Log("\n");
-                }
-            }
+
+            // Testing 
+            //if (phrases == null)
+            //    Debug.Log("Null phrases");
+            //else
+            //{
+            //    foreach (PhraseData phrase in phrases)
+            //    {
+            //        Debug.Log("Category: " + phrase.Category);
+            //        Debug.Log("Type: " + phrase.Group);
+            //        Debug.Log("Text: " + phrase.Text);
+            //        Debug.Log("\n");
+            //    }
+            //}
 
             //if (readData == null)
             //    Debug.Log("Null phrases");
