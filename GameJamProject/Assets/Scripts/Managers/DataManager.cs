@@ -27,7 +27,8 @@ namespace Jam
     {
         Individual,
         Group,
-        NotGroup
+        NotGroup,
+        NotIndividual
     }
 
     [Serializable]
