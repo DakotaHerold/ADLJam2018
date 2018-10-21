@@ -7,6 +7,15 @@ using UnityEngine;
 namespace Jam
 {
     [Serializable]
+    public enum Areas
+    {
+        Red,
+        Blue,
+        White,
+        Yellow
+    }
+
+    [Serializable]
     public enum Category
     {
         Animals,
@@ -17,7 +26,8 @@ namespace Jam
     public enum Group
     {
         Individual,
-        Group
+        Group,
+        NotGroup
     }
 
     [Serializable]
