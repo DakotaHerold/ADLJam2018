@@ -21,12 +21,25 @@ namespace Jam
 
     public class AreaManager : MonoBehaviour
     {
-        public DataManager dataManager;
-        private AreaData[] finishedAreas; 
+        public AreaUI[] areaUIs; 
+
+        [HideInInspector]
+        private DataManager dataManager;
+        [HideInInspector]
+        public AreaData[] finishedAreas;
+        [HideInInspector]
+        public List<PersonTrait> finishedPersonTraits;
+        [HideInInspector]
+        public List<List<PersonTrait>> finishedPeople; 
 
         private int numTraitsPerArea = 1; // Final needs to be two
+        public int NumTraitsPerArea { get { return numTraitsPerArea; } }
         private int numTotalTraitsToGenerate = 2; // Final needs to be 10 or more
-        private int NumAreas = 4; 
+        public int NumTotalTraitsToGenerate { get { return numTotalTraitsToGenerate; } }
+        private int numAreas = 4; 
+        public int NumAreas { get { return numAreas; } }
+        private int numPeople; 
+        public int NumPeople { get { return numPeople; } }
 
         private AreaTrait GenerateTrait()
         {
@@ -99,7 +112,7 @@ namespace Jam
                 usedTraits.Add(newTrait);
             }
 
-            for(int iArea = 0; iArea < NumAreas; ++iArea)
+            for(int iArea = 0; iArea < numAreas; ++iArea)
             {
                 AreaData newAreaData;
                 newAreaData.areaTraits = new List<AreaTrait>(); 
@@ -151,19 +164,95 @@ namespace Jam
             return results;
         }
 
+        public List<PersonTrait> ConstructPeople(int numPeople, PhraseData[] baseData)
+        {
+            List<PersonTrait> possiblePeopleTraits = new List<PersonTrait>(); 
+            foreach(PhraseData phrase in baseData)
+            {
+                if(phrase.Group == Group.Individual || phrase.Group == Group.NotIndividual)
+                {
+                    PersonTrait trait;
+                    trait.Category = phrase.Category;
+                    trait.groupType = phrase.Group;
+                    trait.Phrase = phrase.Text; 
+                }
+            }
+
+            // Find common denominator 
+            int numPeoplePerArea = Mathf.CeilToInt(numPeople / numAreas);
+            Debug.Log("Num people per area: " + numPeoplePerArea);
+
+            List<PersonTrait> results = new List<PersonTrait>(); 
+
+            foreach(AreaData area in finishedAreas)
+            {
+                foreach(AreaTrait areaTrait in area.areaTraits)
+                {
+                    foreach(PersonTrait person in possiblePeopleTraits)
+                    {
+                        if(areaTrait.category == person.Category)
+                        {
+                            if(areaTrait.group == Group.NotGroup && person.groupType == Group.NotIndividual)
+                            {
+                                results.Add(person);
+                                break; 
+                            }
+                            else if(areaTrait.group == Group.Group && person.groupType == Group.Individual)
+                            {
+                                results.Add(person);
+                                break; 
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            return results; 
+        }
+
+        public List<Areas> GetPersonSuccessAreas(Person person)
+        {
+            List<Areas> results = new List<Areas>();
+
+            foreach (AreaData area in finishedAreas)
+            {
+                foreach (AreaTrait areaTrait in area.areaTraits)
+                {
+                    foreach (PersonTrait personTrait in person.Traits)
+                    {
+                        if (personTrait.Category == areaTrait.category)
+                        {
+                            if (areaTrait.group == Group.NotGroup && personTrait.groupType == Group.NotIndividual)
+                            {
+                                results.Add(area.name); 
+                            }
+                            else if (areaTrait.group == Group.Group && personTrait.groupType == Group.Individual)
+                            {
+                                results.Add(area.name);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return results;
+        }
+
         // Use this for initialization
         void Start()
         {
             dataManager = GetComponent<DataManager>();
-            finishedAreas = ConstructArea(dataManager.phrases); 
+            // Testing
+            //finishedAreas = ConstructArea(dataManager.phrases); 
 
-            if(finishedAreas != null)
-            {
-                foreach(AreaData data in finishedAreas)
-                {
-                    Debug.Log(data.phrases[0]); 
-                }
-            }
+            //if(finishedAreas != null)
+            //{
+            //    foreach(AreaData data in finishedAreas)
+            //    {
+            //        Debug.Log(data.phrases[0]); 
+            //    }
+            //}
         }
 
         // Update is called once per frame

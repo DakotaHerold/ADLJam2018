@@ -9,9 +9,11 @@ namespace Jam
     public class Person : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public Canvas GameCanvas; 
-        public Trait[] Traits;
+        [HideInInspector]
+        public List<PersonTrait> Traits;
 
-        
+        [HideInInspector]
+        public List<Areas> winAreas; 
 
         Image uiImage;
         bool inRange = false;
@@ -37,30 +39,20 @@ namespace Jam
                     {
                         if(uiImage.rectTransform.Overlaps(area.rect))
                         {
-                            Debug.Log("Test is in" + area.gameObject.name);
+                            area.containedPeople.Add(this); 
                         }
-                        //if ((area.rect.rect.Overlaps(uiImage.rectTransform.rect)))
-                        //{
-                        //    Debug.Log("Test is in" + area.gameObject.name);
-                        //}
-                        //if(uiImage.rectTransform.rect.Overlaps(area.rect.rect))
-                        //{
-                        //    Debug.Log("Test is in" + area.gameObject.name);
-                        //}
-                        //if (uiImage.rectTransform.rectOverlaps(area.rect))
-                        //{
-                        //    Debug.Log("Test is in" + area.gameObject.name);
-                        //}
-                        //if(area.rect.rectOverlaps(uiImage.rectTransform))
-                        //{
-                        //    Debug.Log("Test is in" + area.gameObject.name);
-                        //}
+                    }
+                }
+                else
+                {
+                    foreach (AreaUI area in areas)
+                    {
+                        area.containedPeople.Remove(this);
                     }
                 }
             }
             if(active)
                 transform.position = Input.mousePosition;
-            
         }
 
         //Detect if the Cursor starts to pass over the GameObject
