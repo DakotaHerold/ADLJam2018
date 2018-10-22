@@ -8,6 +8,8 @@ namespace Jam
 {
     public class Person : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
+        JamGameManager gameManager; 
+
         public Canvas GameCanvas; 
         [HideInInspector]
         public List<PersonTrait> Traits;
@@ -22,13 +24,18 @@ namespace Jam
             get { return active; }
             set { 
                 active = value;
-                if (value)
-                    GameObject.Find("PickupSoundGenerator").GetComponent<TriggerSoundGenerator>().GenerateSound();
-                else
-                    GameObject.Find("PlaceSoundGenerator").GetComponent<TriggerSoundGenerator>().GenerateSound();
+                //if (value)
+                //    GameObject.Find("PickupSoundGenerator").GetComponent<TriggerSoundGenerator>().GenerateSound();
+                //else
+                //    GameObject.Find("PlaceSoundGenerator").GetComponent<TriggerSoundGenerator>().GenerateSound();
             }
         }
-        private AreaUI[] areas; 
+        private AreaUI[] areas;
+
+        private void Awake()
+        {
+            gameManager = FindObjectOfType<JamGameManager>(); 
+        }
 
         // Use this for initialization
         void Start()
@@ -55,6 +62,7 @@ namespace Jam
                 }
                 else
                 {
+                    gameManager.UpdatePersonText(Traits); 
                     foreach (AreaUI area in areas)
                     {
                         area.containedPeople.Remove(this);

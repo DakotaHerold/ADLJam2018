@@ -1,19 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI; 
 
 namespace Jam
 {
     public class GameCanvasManager : MonoBehaviour
     {
-        GameObject personPrefab; 
+        public GameObject personPrefab; 
         Canvas canvas;
-        List<Person> uiPeople; 
+        List<Person> uiPeople;
+
+        public Text infoText; 
+
         // Use this for initialization
         void Start()
         {
-            canvas = GetComponent<Canvas>();
-            uiPeople = new List<Person>(); 
+            
         }
 
         // Update is called once per frame
@@ -22,9 +25,17 @@ namespace Jam
 
         }
 
+        private void Init()
+        {
+            canvas = GetComponent<Canvas>();
+            uiPeople = new List<Person>();
+            infoText.text = "";
+        }
+
         public void SpawnPeople(List<List<PersonTrait>> people)
         {
-            foreach(List<PersonTrait> traits in people)
+            Init(); 
+            foreach (List<PersonTrait> traits in people)
             {
                 GameObject personObj = Instantiate(personPrefab, canvas.gameObject.transform);
                 Person person = personObj.GetComponent<Person>();
@@ -36,6 +47,17 @@ namespace Jam
                 uiPeople.Add(person); 
             }
             
+        }
+
+        public void ShowPersonText(List<PersonTrait> traits)
+        {
+            infoText.text = "";
+            infoText.text += "Character Traits\n"; 
+            foreach(PersonTrait trait in traits)
+            {
+                infoText.text += trait.Phrase;
+                infoText.text += "\n"; 
+            }
         }
     }
 }

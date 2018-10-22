@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using System.Linq; 
 
 namespace Jam
 {
@@ -140,5 +141,36 @@ namespace Jam
             }
         }
 
+        public PersonTrait PullPersonTrait(Category category, Group group)
+        {
+            PersonTrait personTrait = new PersonTrait();
+
+            System.Random rnd = new System.Random();
+            PhraseData[] randomizedPhrases = phrases.OrderBy(x => rnd.Next()).ToArray();
+
+            foreach (PhraseData data in randomizedPhrases)
+            {
+                if(data.Category == category && data.Group == group)
+                {
+                    personTrait.Phrase = data.Text;
+                    personTrait.Category = data.Category;
+                    personTrait.groupType = data.Group;
+                    break; 
+                    //if(exclusionList != null)
+                    //{
+                    //    if(exclusionList.Contains(personTrait))
+                    //    {
+                    //        continue; 
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    break; 
+                    //}
+                }
+            }
+
+            return personTrait; 
+        }
     }
 }

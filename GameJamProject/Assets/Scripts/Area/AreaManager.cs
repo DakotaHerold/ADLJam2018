@@ -47,7 +47,7 @@ namespace Jam
         public int NumTotalTraitsToGenerate { get { return numTotalTraitsToGenerate; } }
         private int numAreas = 4; 
         public int NumAreas { get { return numAreas; } }
-        private int numPeople; 
+        private int numPeople = 20; 
         public int NumPeople { get { return numPeople; } }
 
         private AreaTrait GenerateTrait()
@@ -130,14 +130,14 @@ namespace Jam
                 
                 for(int jTrait = 0; jTrait < numTraitsPerArea; ++jTrait)
                 {
-                    int randInt = UnityEngine.Random.Range(0, usedTraits.Count-1); 
+                    int randInt = UnityEngine.Random.Range(0, usedTraits.Count); 
                     AreaTrait trait = usedTraits[randInt]; 
 
                     for(int kTrait = 0; kTrait < newAreaData.areaTraits.Count; ++kTrait)
                     {
                         while(trait.category == newAreaData.areaTraits[kTrait].category)
                         {
-                            trait = usedTraits[UnityEngine.Random.Range(0, usedTraits.Count-1)];
+                            trait = usedTraits[UnityEngine.Random.Range(0, usedTraits.Count)];
                         }
                     }
 
@@ -208,16 +208,18 @@ namespace Jam
                     PersonTrait trait;
                     trait.Category = phrase.Category;
                     trait.groupType = phrase.Group;
-                    trait.Phrase = phrase.Text; 
+                    trait.Phrase = phrase.Text;
+                    possiblePeopleTraits.Add(trait); 
                 }
             }
 
             // Find common denominator 
-            int numPeoplePerArea = Mathf.CeilToInt(numPeople / numAreas);
+            int numPeoplePerArea = 5; // Mathf.CeilToInt(numPeople / numAreas);
             Debug.Log("Num people per area: " + numPeoplePerArea);
 
             List<PersonTrait> sortedTraits = new List<PersonTrait>();
-            //List<PersonTrait> sortedNegativeTraits = new List<PersonTrait>(); 
+
+            // TODO Needs to sort and save category&& group here only. When adding
 
             foreach(AreaData area in finishedAreas)
             {
@@ -255,14 +257,19 @@ namespace Jam
                     PersonTrait trait;
                     while (!passed)
                     {
-                        passed = true; 
-                        trait = sortedTraits[UnityEngine.Random.Range(0, sortedTraits.Count-1)]; 
-                        if(usedCategories.Contains(trait.Category))
+                        passed = true;
+                        // TODO pull random trait that matches category and group 
+                        int randInt = UnityEngine.Random.Range(0, sortedTraits.Count);
+                        PersonTrait temp = sortedTraits[randInt];
+                        trait = dataManager.PullPersonTrait(temp.Category, temp.groupType);
+                        personsInfo.Add(trait);
+                        if (usedCategories.Contains(trait.Category))
                         {
                             passed = false; 
                         }
                         else
                         {
+                            personsInfo.Add(trait); 
                             usedCategories.Add(trait.Category); 
                         }
                     }

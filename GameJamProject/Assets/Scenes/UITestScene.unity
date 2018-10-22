@@ -1168,6 +1168,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4dcc9dacfc0f67498163bbc78fd8709, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  personPrefab: {fileID: 1583318045160620, guid: 76daf10a734d10e439333c361cacc724,
+    type: 2}
+  infoText: {fileID: 1833274509}
 --- !u!1 &1760693297
 GameObject:
   m_ObjectHideFlags: 0
@@ -1263,7 +1266,7 @@ GameObject:
   - component: {fileID: 1833274510}
   - component: {fileID: 1833274509}
   m_Layer: 5
-  m_Name: Text
+  m_Name: InfoText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1284,8 +1287,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -340, y: -226}
+  m_AnchoredPosition: {x: 0.000030517578, y: -0.000030517578}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1833274509
 MonoBehaviour:
@@ -1308,7 +1311,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 16
+    m_FontSize: 20
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
