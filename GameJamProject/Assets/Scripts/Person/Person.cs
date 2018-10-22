@@ -52,6 +52,7 @@ namespace Jam
                 active = !active; 
                 if(active == false)
                 {
+                    gameManager.ClearInfoBox(); 
                     foreach (AreaUI area in areas)
                     {
                         if(uiImage.rectTransform.Overlaps(area.rect))

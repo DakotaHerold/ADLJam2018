@@ -39,7 +39,7 @@ namespace Jam
         [HideInInspector]
         public List<List<PersonTrait>> finishedPeople; 
 
-        private int numTraitsPerArea = 1; // Final needs to be two
+        private int numTraitsPerArea = 2; // Final needs to be two
         public int NumTraitsPerArea { get { return numTraitsPerArea; } }
         private int numTraitsPerPerson = 3; 
         public int NumTraitsPerPerson { get { return numTraitsPerPerson; } }
@@ -214,8 +214,9 @@ namespace Jam
             }
 
             // Find common denominator 
-            int numPeoplePerArea = 5; // Mathf.CeilToInt(numPeople / numAreas);
-            Debug.Log("Num people per area: " + numPeoplePerArea);
+            float numPeopleFloat = (((float)numPeople) / ((float)numAreas));
+            int numPeoplePerArea = Mathf.CeilToInt(numPeopleFloat);
+            //Debug.Log("Num people per area: " + numPeoplePerArea);
 
             List<PersonTrait> sortedTraits = new List<PersonTrait>();
 
@@ -229,15 +230,13 @@ namespace Jam
                     {
                         if(areaTrait.category == personTrait.Category)
                         {
-                            if(areaTrait.group == Group.NotGroup && personTrait.groupType == Group.NotIndividual)
+                            if(areaTrait.group == Group.NotGroup && personTrait.groupType == Group.NotIndividual && !sortedTraits.Contains(personTrait))
                             {
                                 sortedTraits.Add(personTrait);
-                                break; 
                             }
-                            else if(areaTrait.group == Group.Group && personTrait.groupType == Group.Individual)
+                            else if(areaTrait.group == Group.Group && personTrait.groupType == Group.Individual && !sortedTraits.Contains(personTrait))
                             {
                                 sortedTraits.Add(personTrait);
-                                break; 
                             }
                         }
                     }
@@ -260,9 +259,9 @@ namespace Jam
                         passed = true;
                         // TODO pull random trait that matches category and group 
                         int randInt = UnityEngine.Random.Range(0, sortedTraits.Count);
-                        PersonTrait temp = sortedTraits[randInt];
-                        trait = dataManager.PullPersonTrait(temp.Category, temp.groupType);
-                        personsInfo.Add(trait);
+                        trait = sortedTraits[randInt];
+                        //PersonTrait temp = sortedTraits[randInt];
+                        //trait = dataManager.PullPersonTrait(temp.Category, temp.groupType);
                         if (usedCategories.Contains(trait.Category))
                         {
                             passed = false; 

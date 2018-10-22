@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 114787023530076148}
   - component: {fileID: 114657408062911036}
   m_Layer: 5
-  m_Name: TestPerson
+  m_Name: Person
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41,6 +41,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GameCanvas: {fileID: 0}
+  winAreas: 
 --- !u!114 &114787023530076148
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -60,7 +61,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 54364418e6be89d46beee77f85160ccd, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -81,7 +82,7 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1583318045160620}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -90,6 +91,6 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -724, y: 207}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -503, y: 181}
+  m_SizeDelta: {x: 135.66667, y: 129}
   m_Pivot: {x: 0.5, y: 0.5}

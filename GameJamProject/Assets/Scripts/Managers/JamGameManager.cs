@@ -44,5 +44,10 @@ namespace Jam
         {
             gameCanvasManager.ShowPersonText(traits); 
         }
+
+        public void ClearInfoBox()
+        {
+            gameCanvasManager.ClearInfoBox(); 
+        }
     }
 }
