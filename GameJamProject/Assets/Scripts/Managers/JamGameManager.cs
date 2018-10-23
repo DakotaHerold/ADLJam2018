@@ -6,25 +6,29 @@ namespace Jam
 {
     public class JamGameManager : MonoBehaviour {
 
-        public enum GAME_STATE
-        {
-            MENU,
-            RUNNING,
-            RESTART
-        }
+        //public enum GAME_STATE
+        //{
+        //    MENU,
+        //    RUNNING,
+        //    RESTART
+        //}
 
-        private GAME_STATE gameState; 
+        //private GAME_STATE gameState; 
 
         private DataManager dataManager;
         private AreaManager areaManager;
-        private GameCanvasManager gameCanvasManager; 
+        private GameCanvasManager gameCanvasManager;
+        private AZProceduralAudioManager audioManager;
+        private TriggerSoundGenerator soundGenerator; 
 
         // Use this for initialization
         void Start() {
+            //audioManager = FindObjectOfType<AZProceduralAudioManager>();
+            //soundGenerator = FindObjectOfType<TriggerSoundGenerator>(); 
             dataManager = GetComponent<DataManager>();
             areaManager = GetComponent<AreaManager>();
             gameCanvasManager = FindObjectOfType<GameCanvasManager>();
-            gameState = GAME_STATE.MENU;
+            //gameState = GAME_STATE.MENU;
             gameCanvasManager.gameManager = this; 
             InitializeGame(); 
         }
@@ -49,6 +53,12 @@ namespace Jam
         public void ClearInfoBox()
         {
             gameCanvasManager.ClearInfoBox(); 
+        }
+
+        public void PlayPersonPickupSound()
+        {
+            //soundGenerator.GenerateSound(); 
+            //audioManager.Play("pick1");
         }
     }
 }

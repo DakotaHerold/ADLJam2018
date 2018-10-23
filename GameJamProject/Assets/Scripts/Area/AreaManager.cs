@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -78,7 +79,7 @@ namespace Jam
         {
             //Create a number of empty areas
             AreaData[] results = new AreaData[4];
-            List<AreaTrait> usedTraits = new List<AreaTrait>();
+            List<AreaTrait> areaTraits = new List<AreaTrait>();
 
             // Constructing Traits 
             for (int iTrait = 0; iTrait < numTotalTraitsToGenerate; ++iTrait)
@@ -91,7 +92,7 @@ namespace Jam
                 while(!isNew)
                 {
                     isNew = true; 
-                    foreach(AreaTrait trait in usedTraits)
+                    foreach(AreaTrait trait in areaTraits)
                     {
                         if(newTrait.category == trait.category && newTrait.group == trait.group)
                         {
@@ -106,7 +107,7 @@ namespace Jam
                 }
 
 
-                usedTraits.Add(newTrait);
+                areaTraits.Add(newTrait);
             }
 
             for(int iArea = 0; iArea < numAreas; ++iArea)
@@ -116,18 +117,18 @@ namespace Jam
                 
                 for(int jTrait = 0; jTrait < numTraitsPerArea; ++jTrait)
                 {
-                    int randInt = UnityEngine.Random.Range(0, usedTraits.Count); 
-                    AreaTrait trait = usedTraits[randInt]; 
+                    int randInt = UnityEngine.Random.Range(0, areaTraits.Count); 
+                    AreaTrait trait = areaTraits[randInt]; 
 
                     for(int kTrait = 0; kTrait < newAreaData.areaTraits.Count; ++kTrait)
                     {
                         while(trait.category == newAreaData.areaTraits[kTrait].category)
                         {
-                            trait = usedTraits[UnityEngine.Random.Range(0, usedTraits.Count)];
+                            trait = areaTraits[UnityEngine.Random.Range(0, areaTraits.Count)];
                         }
                     }
 
-                    usedTraits.Remove(usedTraits[randInt]);
+                    areaTraits.Remove(areaTraits[randInt]);
 
                     newAreaData.areaTraits.Add(trait); 
                 }
@@ -151,7 +152,8 @@ namespace Jam
 
                 newAreaData.phrases = new List<string>();
 
-                List<string> usedPhrases = new List<string>(); 
+                List<string> usedPhrases = new List<string>();
+                List<AreaTrait> usedAreaTraits = new List<AreaTrait>(); 
 
                for(int iTrait = 0; iTrait < newAreaData.areaTraits.Count; ++iTrait)
                {
@@ -165,18 +167,28 @@ namespace Jam
                             if(phraseInfo.Category == trait.category && phraseInfo.Group == trait.group)
                             {
                                 phrase = phraseInfo.Text;
-                                if(!usedPhrases.Contains(phrase))
+                                if(!usedPhrases.Contains(phrase) && !usedAreaTraits.Contains(trait))
                                 {
                                     newAreaData.phrases.Add(phrase);
-                                    usedPhrases.Add(phrase); 
+                                    usedPhrases.Add(phrase);
+                                    usedAreaTraits.Add(trait); 
                                 }
                             }
                         }
                     }
 
-                    //newAreaData.phrases.Add(phraseDictionary[trait]); 
+   
+                    System.Random rng = new System.Random(); 
+                    newAreaData.phrases = newAreaData.phrases.OrderBy(a => rng.Next()).ToList();
+
+                    //List<string> newPhrases = new List<string>();
+                    //int randIndex = UnityEngine.Random.Range(0, newAreaData.phrases.Count);
+                    //string randPhrase = newAreaData.phrases[randIndex];
+                    //newPhrases.Add(randPhrase); 
                     
-               }
+                    //newAreaData.phrases = newPhrases; 
+
+                }
 
                 results[iArea] = newAreaData; 
             }
@@ -318,5 +330,6 @@ namespace Jam
         {
 
         }
+
     }
 }

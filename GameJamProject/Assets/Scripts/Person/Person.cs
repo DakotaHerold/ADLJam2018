@@ -24,10 +24,6 @@ namespace Jam
             get { return active; }
             set { 
                 active = value;
-                //if (value)
-                //    GameObject.Find("PickupSoundGenerator").GetComponent<TriggerSoundGenerator>().GenerateSound();
-                //else
-                //    GameObject.Find("PlaceSoundGenerator").GetComponent<TriggerSoundGenerator>().GenerateSound();
             }
         }
         private AreaUI[] areas;
@@ -71,6 +67,7 @@ namespace Jam
                 }
                 else
                 {
+                    gameManager.PlayPersonPickupSound(); 
                     gameManager.UpdatePersonText(Traits); 
                     foreach (AreaUI area in areas)
                     {
