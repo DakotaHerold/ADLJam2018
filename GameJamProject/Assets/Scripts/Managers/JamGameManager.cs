@@ -25,6 +25,7 @@ namespace Jam
             areaManager = GetComponent<AreaManager>();
             gameCanvasManager = FindObjectOfType<GameCanvasManager>();
             gameState = GAME_STATE.MENU;
+            gameCanvasManager.gameManager = this; 
             InitializeGame(); 
         }
 

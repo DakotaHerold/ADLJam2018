@@ -21,6 +21,7 @@ namespace Jam
         private AreaManager areaManager;
 
         public Button submitButton;
+        public Button creditsButton; 
         public Button aButton;
         public Button bButton;
         public Button cButton;
@@ -28,7 +29,9 @@ namespace Jam
 
         public Sprite smileyFace;
         public Sprite frownyFace;
-        public Sprite neutralFace; 
+        public Sprite neutralFace;
+
+        public JamGameManager gameManager; 
 
         private void AButtonClick()
         {
@@ -111,6 +114,11 @@ namespace Jam
 
         private void SubmitButtonClick()
         {
+            submitButton.onClick.RemoveAllListeners(); 
+            submitButton.GetComponentInChildren<Text>().text = "Play Again";
+            submitButton.onClick.AddListener(PlayAgainButtonClick); 
+
+
             int correct = 0; 
             for(int iArea = 0; iArea < areaManager.areaUIs.Length; ++iArea)
             {
@@ -127,6 +135,108 @@ namespace Jam
                     }
                 }
             }
+
+            titleText.text = "Results";
+            infoText.text = "You got " + correct + "/" + areaManager.NumPeople + " correct!\n\n";
+            infoText.text += "Answer Key:\n";
+            infoText.text += "Table A ";
+            foreach (AreaTrait trait in areaManager.finishedAreas[0].areaTraits)
+            {
+                if(trait.group == Group.Group)
+                {
+                    infoText.text += "Liked " + trait.category.ToString() + " "; 
+                }
+                else
+                {
+                    infoText.text += "Disliked " + trait.category.ToString() + " "; 
+                }
+                if(trait != areaManager.finishedAreas[0].areaTraits[areaManager.finishedAreas[0].areaTraits.Count-1])
+                {
+                    infoText.text += "and "; 
+                }
+            }
+            infoText.text += "\nTable B ";
+            foreach (AreaTrait trait in areaManager.finishedAreas[1].areaTraits)
+            {
+                if (trait.group == Group.Group)
+                {
+                    infoText.text += "Liked " + trait.category.ToString() + " ";
+                }
+                else
+                {
+                    infoText.text += "Disliked " + trait.category.ToString() + " ";
+                }
+                if (trait != areaManager.finishedAreas[1].areaTraits[areaManager.finishedAreas[1].areaTraits.Count - 1])
+                {
+                    infoText.text += "and ";
+                }
+            }
+            infoText.text += "\nTable C ";
+            foreach (AreaTrait trait in areaManager.finishedAreas[2].areaTraits)
+            {
+                if (trait.group == Group.Group)
+                {
+                    infoText.text += "Liked " + trait.category.ToString() + " ";
+                }
+                else
+                {
+                    infoText.text += "Disliked " + trait.category.ToString() + " ";
+                }
+                if (trait != areaManager.finishedAreas[2].areaTraits[areaManager.finishedAreas[2].areaTraits.Count - 1])
+                {
+                    infoText.text += "and ";
+                }
+            }
+            infoText.text += "\nTable D ";
+            foreach (AreaTrait trait in areaManager.finishedAreas[3].areaTraits)
+            {
+                if (trait.group == Group.Group)
+                {
+                    infoText.text += "Liked " + trait.category.ToString() + " ";
+                }
+                else
+                {
+                    infoText.text += "Disliked " + trait.category.ToString() + " ";
+                }
+                if (trait != areaManager.finishedAreas[3].areaTraits[areaManager.finishedAreas[3].areaTraits.Count - 1])
+                {
+                    infoText.text += "and ";
+                }
+            }
+
+        }
+
+        private void PlayAgainButtonClick()
+        {
+            submitButton.onClick.RemoveAllListeners();
+            submitButton.onClick.AddListener(SubmitButtonClick); 
+            for (int iArea = 0; iArea < areaManager.areaUIs.Length; ++iArea)
+            {
+                areaManager.areaUIs[iArea].containedPeople.Clear();
+            }
+            foreach (Person person in uiPeople)
+            {
+                person.winAreas = null;
+                person.Traits = null;
+                person.Active = false; 
+                Destroy(person.gameObject); 
+            }
+            
+            uiPeople = new List<Person>();
+            areaManager.finishedAreas = null;
+            areaManager.finishedPeople = null;
+            gameManager.InitializeGame(); 
+        }
+
+        private void CreditsButtonClick()
+        {
+            ClearInfoBox();
+            titleText.text = "Project: Lunch Table";
+            infoText.text += "Created for ADL Jam 2018\n\nSpecial Thanks to the ADL\n\n";
+            infoText.text += "Narrative Design: Brian Holley\n";
+            infoText.text += "Sound Design: Forrest Z. Shooster\n";
+            infoText.text += "Game Programmer: Chris Grate\n";
+            infoText.text += "Game Programmer: Dakota Herold\n";
         }
 
         private void Init()
@@ -134,14 +244,15 @@ namespace Jam
             areaManager = FindObjectOfType<AreaManager>(); 
             canvas = GetComponent<Canvas>();
             uiPeople = new List<Person>();
-            infoText.text = "";
-            titleText.text = "Info";
+            SetTextToStart(); 
 
             aButton.onClick.AddListener(AButtonClick);
             bButton.onClick.AddListener(BButtonClick);
             cButton.onClick.AddListener(CButtonClick);
             dButton.onClick.AddListener(DButtonClick);
-            submitButton.onClick.AddListener(SubmitButtonClick); 
+            submitButton.onClick.AddListener(SubmitButtonClick);
+            submitButton.GetComponentInChildren<Text>().text = "Submit";
+            creditsButton.onClick.AddListener(CreditsButtonClick); 
         }
 
         public void SpawnPeople(List<List<PersonTrait>> people)
@@ -158,6 +269,7 @@ namespace Jam
             {
                 GameObject personObj = Instantiate(personPrefab, canvas.gameObject.transform);
                 Person person = personObj.GetComponent<Person>();
+                person.Init();
                 person.Traits = new List<PersonTrait>(); 
                 foreach (PersonTrait traitData in traits)
                 {
@@ -208,6 +320,12 @@ namespace Jam
         {
             titleText.text = "";
             infoText.text = ""; 
+        }
+
+        public void SetTextToStart()
+        {
+            infoText.text = "Place each person at a table for lunch. Click to pick up and view a person's interests. Click again to place them. Make sure they get along with others at their table or they'll have a bad lunch break! Check a table's interests using the corresponding button on the right. Press submit when you're ready to see how you did!";
+            titleText.text = "Project: Lunch Table";
         }
     }
 }

@@ -76,20 +76,6 @@ namespace Jam
 
         public AreaData[] ConstructArea( PhraseData [] baseData)
         {
-            //Dictionary<AreaTrait, string> phraseDictionary = new Dictionary<AreaTrait, string>();
-
-
-            //for (int iPhrase = 0; iPhrase < baseData.Length; ++iPhrase)
-            //{
-            //    AreaTrait phraseTrait;
-            //    phraseTrait.category = baseData[iPhrase].Category;
-            //    phraseTrait.group = baseData[iPhrase].Group;
-
-            //    phraseDictionary.Add(phraseTrait, baseData[iPhrase].Text); 
-            //}
-
-
-
             //Create a number of empty areas
             AreaData[] results = new AreaData[4];
             List<AreaTrait> usedTraits = new List<AreaTrait>();

@@ -34,14 +34,22 @@ namespace Jam
 
         private void Awake()
         {
-            gameManager = FindObjectOfType<JamGameManager>(); 
+            
         }
 
         // Use this for initialization
         void Start()
         {
+            Init(); 
+        }
+
+        public void Init()
+        {
+            active = false;
+            inRange = false;
+            gameManager = FindObjectOfType<JamGameManager>();
             uiImage = GetComponent<Image>();
-            areas = FindObjectsOfType<AreaUI>(); 
+            areas = FindObjectsOfType<AreaUI>();
         }
 
         // Update is called once per frame

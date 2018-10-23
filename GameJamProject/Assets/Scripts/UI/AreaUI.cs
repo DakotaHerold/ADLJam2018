@@ -15,8 +15,13 @@ namespace Jam
 
         // Use this for initialization
         void Start() {
+            Init(); 
+        }
+
+        public void Init()
+        {
             rect = GetComponent<RectTransform>();
-            containedPeople = new List<Person>(); 
+            containedPeople = new List<Person>();
         }
 
         // Update is called once per frame
