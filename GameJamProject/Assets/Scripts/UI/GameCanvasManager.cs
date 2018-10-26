@@ -233,10 +233,10 @@ namespace Jam
             ClearInfoBox();
             titleText.text = "Project: Lunch Table";
             infoText.text += "Created for ADL Jam 2018\n\nSpecial Thanks to the ADL\n\n";
-            infoText.text += "Narrative Design: Brian Holley\n";
-            infoText.text += "Sound Design: Forrest Z. Shooster\n";
+            infoText.text += "Lead Narrative Design: Brian Holley\n";
             infoText.text += "Game Programmer: Chris Grate\n";
-            infoText.text += "Game Programmer: Dakota Herold\n";
+            infoText.text += "Production / Sound Lead: Forrest Z. Shooster\n";
+            infoText.text += "Lead Game Programmer: Dakota Herold\n";
         }
 
         private void Init()
@@ -326,7 +326,7 @@ namespace Jam
         public void SetTextToStart()
         {
             infoText.text = "Place each person at a table for lunch. Click to pick up and view a person's interests. Click again to place them. Make sure they get along with others at their table or they'll have a bad lunch break! Check a table's interests using the corresponding button on the right. Press submit when you're ready to see how you did!";
-            titleText.text = "Project: Lunch Table";
+            titleText.text = "Listen to What they Have to Say";
         }
     }
 }
