@@ -1,10 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
-// GUIDE TO CREATING PROPERTY DRAWERS IN INSPECTOR
-[UnityEditor.CustomPropertyDrawer(typeof(SerializableDictionary <int, float> ))]
-[System.Serializable] public class SerializableTrackToVolumeLinks: SerializableDictionary<int, float> {}
- 
-[UnityEditor.CustomPropertyDrawer(typeof(SerializableTrackToVolumeLinks))]
+[System.Serializable] public class SerializableTrackToVolumeLinks : SerializableDictionary<int, float> { }
+
+#if UNITY_EDITOR
+[CustomPropertyDrawer(typeof(SerializableTrackToVolumeLinks))]
 public class SerializableTrackVolumeDrawer : SerializableDictionaryDrawer<int, float> { }
+#endif

@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 public class TriggerSoundGenerator : MonoBehaviour {
 	//public GameObject TriggerSoundPrefab;
@@ -25,6 +28,7 @@ public class TriggerSoundGenerator : MonoBehaviour {
 	}
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(TriggerSoundGenerator))]
 public class TSGeneratorEditor: Editor{
 	public override void OnInspectorGUI() {
@@ -33,3 +37,4 @@ public class TSGeneratorEditor: Editor{
 		base.OnInspectorGUI();
 	}
 }
+#endif

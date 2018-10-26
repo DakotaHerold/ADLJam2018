@@ -4,7 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityObject = UnityEngine.Object;
 using SerializableCollectionHelpers;
 using System.Reflection;
@@ -491,6 +493,7 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 	}
 }
 	
+#if UNITY_EDITOR
 public abstract class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
 {
 	private SerializableDictionary<TK, TV> _Dictionary;
@@ -811,11 +814,13 @@ public abstract class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
         return (type.GetInterface(nameof(IEnumerable)) != null);
     }
 }
+#endif
+
 
 // GUIDE TO CREATING PROPERTY DRAWERS IN INSPECTOR
 // [Serializable] public class Type: <key_type (non-generic), 
 //																				  value_type (non-generic)> {}
-// 
+// NOTE: DON'T FORGET TO FIX WITH COMPILE CHECKS BEFORE BUILDING
 // [UnityEditor.CustomPropertyDrawer(typeof(Type))]
 // public class TypeDrawer : Drawer<key_type, value_type> { }
 // DONE!

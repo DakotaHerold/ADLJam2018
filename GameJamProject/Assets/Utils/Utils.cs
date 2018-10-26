@@ -1,11 +1,10 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
-using UnityEditor;
-
-namespace UnityUtils {
+namespace UnityUtils
+{
     public static class Utilities {
-    	#region Math
+        #region Math
 		public static float MapFloat(float value, float min1, float max1, float min2, float max2){
 			return (((value - min1) / (max1 - min1)) * (max2 - min2)) + min2;
 		}
@@ -15,13 +14,13 @@ namespace UnityUtils {
 				return true;
 			return false;
 		}
-		#endregion
-		#region Audio
+        #endregion
+        #region Audio
 		public static AudioSource HierarchySearchForAudioSource(GameObject gameObject){
 			return (gameObject.GetComponent<AudioSource> () != null) ? gameObject.GetComponent<AudioSource> () : 
 				HierarchySearchForAudioSource (gameObject.transform.parent.gameObject);
 		}
-		#endregion
+        #endregion
 		
         public static bool SHOW_DEBUG_BUTTONS = true;
         public static bool InRange(float limit_a, float limit_b, float point) {
@@ -64,7 +63,8 @@ namespace UnityUtils {
 }
 namespace AZUnityExtensions
 {
-    namespace UnityTypeExtensions {
+    namespace UnityTypeExtensions
+    {
         public static class ColorExtensions {
             public static Color Copy(this Color col) {
                 return new Color(col.r, col.g, col.b, col.a);
@@ -77,19 +77,24 @@ namespace AZUnityExtensions
             }
         }
     }
-    namespace UnityCollections {
+    namespace UnityCollections
+    {
         #region GENERICS    
         [System.Serializable] public class SerializableGameObjectQueue : SerializableQueue<GameObject> { }
+        #if UNITY_EDITOR
         [UnityEditor.CustomPropertyDrawer(typeof(SerializableGameObjectQueue))]
         public class SerializableGameObjectQueueDrawer : SerializableQueueDrawer<GameObject> { }
-
+        #endif
         [System.Serializable] public class SerializeableNamedGameObjectDictionary : SerializableDictionary<string, GameObject> { }
+        #if UNITY_EDITOR
         [UnityEditor.CustomPropertyDrawer(typeof(SerializeableNamedGameObjectDictionary))]
         public class SerializableNamedGameObjectDictionaryDrawer : SerializableDictionaryDrawer<string, GameObject> { }
-
+        #endif
         [System.Serializable] public class SerializeableNamedColorListDictionary : SerializableDictionary<string, List<string>> { }
+        #if UNITY_EDITOR
         [UnityEditor.CustomPropertyDrawer(typeof(SerializeableNamedColorListDictionary))]
         public class SerializableNamedColorListDictionaryDrawer : SerializableDictionaryDrawer<string, List<string>> { }
+        #endif
         #endregion
     }
 }

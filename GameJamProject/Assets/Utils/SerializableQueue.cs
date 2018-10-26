@@ -3,7 +3,11 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
+
 using SerializableCollectionHelpers;
 using UnityObject = UnityEngine.Object;
 using System.Collections;
@@ -273,6 +277,7 @@ public class SerializableQueue<T> : IEnumerable<T> {
 	}
 }
 
+#if UNITY_EDITOR
 public abstract class SerializableQueueDrawer<T> : PropertyDrawer
 {
 	private SerializableQueue<T> _Queue;
@@ -458,6 +463,7 @@ public abstract class SerializableQueueDrawer<T> : PropertyDrawer
         return (type.GetInterface(nameof(IEnumerable)) != null);
     }
 }
+#endif
 public static class QueueUtils {
     public static bool IsAny<T>(this IEnumerable<T> data) {
         return data != null && data.Any();

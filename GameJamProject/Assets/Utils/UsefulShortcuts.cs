@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
-
 static class UsefulShortcuts {
     [MenuItem("Tools/Clear Console %#c")] // CMD + SHIFT + C
     public static void ClearConsole() {
@@ -13,6 +13,7 @@ static class UsefulShortcuts {
     //    Debug.Log("PPG status: " + DAQDeviceConnectionManager.PPGConnection);
     //}
 }
+#endif
 static class MatrixMath {
     public static Quaternion QuaternionFromMatrix(Matrix4x4 m) {
         // Adapted from: http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
