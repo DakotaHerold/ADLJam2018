@@ -6,9 +6,10 @@ using System.Diagnostics;
 using UnityEngine;
 using UnityEditor;
 using UnityObject = UnityEngine.Object;
+using SerializableCollectionHelpers;
+using System.Reflection;
 
-[DebuggerDisplay("Count = {Count}")]
-[Serializable]
+[Serializable, DebuggerDisplay("Count = {Count}")]
 public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 {
 	[SerializeField, HideInInspector] int[] _Buckets;
@@ -77,11 +78,6 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 		}
 	}
 
-	~SerializableDictionary()
-	{
-		Clear ();
-	}
-
 	public TValue this[TKey key]
 	{
 		get
@@ -121,11 +117,6 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 	}
 
 	public SerializableDictionary(IDictionary<TKey, TValue> dictionary)
-		: this(dictionary, null)
-	{
-	}
-
-	public SerializableDictionary(SerializableDictionary<TKey, TValue> dictionary)
 		: this(dictionary, null)
 	{
 	}
@@ -347,12 +338,9 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 
 	private int FindIndex(TKey key)
 	{
-		if (key == null) {
-			UnityEngine.Debug.Log (key.ToString() + " null.");
-			throw new ArgumentNullException ("key");
-		}
 		if (key == null)
-			return -1;
+			throw new ArgumentNullException("key");
+
 		if (_Buckets != null)
 		{
 			int hash = _Comparer.GetHashCode(key) & 2147483647;
@@ -376,132 +364,7 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 		value = default(TValue);
 		return false;
 	}
-
-	private static class PrimeHelper
-	{
-		public static readonly int[] Primes = new int[]
-		{
-			3,
-			7,
-			11,
-			17,
-			23,
-			29,
-			37,
-			47,
-			59,
-			71,
-			89,
-			107,
-			131,
-			163,
-			197,
-			239,
-			293,
-			353,
-			431,
-			521,
-			631,
-			761,
-			919,
-			1103,
-			1327,
-			1597,
-			1931,
-			2333,
-			2801,
-			3371,
-			4049,
-			4861,
-			5839,
-			7013,
-			8419,
-			10103,
-			12143,
-			14591,
-			17519,
-			21023,
-			25229,
-			30293,
-			36353,
-			43627,
-			52361,
-			62851,
-			75431,
-			90523,
-			108631,
-			130363,
-			156437,
-			187751,
-			225307,
-			270371,
-			324449,
-			389357,
-			467237,
-			560689,
-			672827,
-			807403,
-			968897,
-			1162687,
-			1395263,
-			1674319,
-			2009191,
-			2411033,
-			2893249,
-			3471899,
-			4166287,
-			4999559,
-			5999471,
-			7199369
-		};
-
-		public static bool IsPrime(int candidate)
-		{
-			if ((candidate & 1) != 0)
-			{
-				int num = (int)Math.Sqrt((double)candidate);
-				for (int i = 3; i <= num; i += 2)
-				{
-					if (candidate % i == 0)
-					{
-						return false;
-					}
-				}
-				return true;
-			}
-			return candidate == 2;
-		}
-
-		public static int GetPrime(int min)
-		{
-			if (min < 0)
-				throw new ArgumentException("min < 0");
-
-			for (int i = 0; i < PrimeHelper.Primes.Length; i++)
-			{
-				int prime = PrimeHelper.Primes[i];
-				if (prime >= min)
-					return prime;
-			}
-			for (int i = min | 1; i < 2147483647; i += 2)
-			{
-				if (PrimeHelper.IsPrime(i) && (i - 1) % 101 != 0)
-					return i;
-			}
-			return min;
-		}
-
-		public static int ExpandPrime(int oldSize)
-		{
-			int num = 2 * oldSize;
-			if (num > 2146435069 && 2146435069 > oldSize)
-			{
-				return 2146435069;
-			}
-			return PrimeHelper.GetPrime(num);
-		}
-	}
-
+    
 	public ICollection<TKey> Keys
 	{
 		get { return _Keys.Take(Count).ToArray(); }
@@ -627,29 +490,26 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 		}
 	}
 }
-
-[System.Serializable]
-public class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
+	
+public abstract class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
 {
 	private SerializableDictionary<TK, TV> _Dictionary;
+    private Dictionary<TK, TV> tempDict;
 	private bool _Foldout;
 	private const float kButtonWidth = 18f;
-	private bool itemHeld = false;
-	private int heldItemCount = 0;
-	private List<int> heldItemIndexes;
-	private List<KeyValuePair<TK, TV>> heldItems;
 
 	public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 	{
 		CheckInitialize(property, label);
 		if (_Foldout)
-			return (_Dictionary.Count + (itemHeld? heldItemCount: 0) + 1) * 17f;
+			return (_Dictionary.Count + 1) * 17f;
 		return 17f;
 	}
 
 	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 	{
 		CheckInitialize(property, label);
+
 		position.height = 17f;
 
 		var foldoutRect = position;
@@ -662,232 +522,66 @@ public class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
 		var buttonRect = position;
 		buttonRect.x = position.width - kButtonWidth + position.x;
 		buttonRect.width = kButtonWidth + 2;
+        if (GUI.Button(buttonRect, new GUIContent("+", "Add item"), EditorStyles.miniButton)) {
+			AddNewItem();
+		}
 
-		if (UtilDebug.SHOW_DEBUG_BUTTONS) {
-			if (GUI.Button(buttonRect, new GUIContent("+", "Add item"), EditorStyles.miniButton)) {
-				AddNewItem();
-			}
+		buttonRect.x -= kButtonWidth;
 
-			buttonRect.x -= kButtonWidth;
-
-			if (GUI.Button(buttonRect, new GUIContent("X", "Clear dictionary"), EditorStyles.miniButtonRight)) {
-				ClearDictionary();
-			}
-		} 
+		if (GUI.Button(buttonRect, new GUIContent("X", "Clear dictionary"), EditorStyles.miniButtonRight)) {
+			ClearDictionary();
+		}
+		 
 		if (!_Foldout)
 			return;
 
-		string s = "held item at: ";
-		bool atLeastOne = false;
-		foreach (int indice in heldItemIndexes) {
-			s += ((atLeastOne)? ", ":"") +(indice + "(key = "+ heldItems[heldItemIndexes.IndexOf(indice)].Key.ToString() +")");
-			if (!atLeastOne)
-				atLeastOne = true;
-		}
-		EditorGUILayout.LabelField (s);
+        foreach (var item in _Dictionary) {
+            var key = item.Key;
+            var value = item.Value;
 
-		s = "actual keys: ";
-		atLeastOne = false;
-		foreach (TK _key in _Dictionary.Keys) {
-			s += ((atLeastOne)? ", ":"") +(_key.ToString());
-			if (!atLeastOne)
-				atLeastOne = true;
-		}
-		EditorGUILayout.LabelField (s);
+            position.y += 17f;
 
-		int index = 0;
-		SerializableDictionary<TK,TV> temp = new SerializableDictionary<TK, TV> (_Dictionary);
-		foreach (var item in temp)
-		{
-			#region HELD
-			while (heldItemIndexes.Contains(index)) {
-				KeyValuePair<TK,TV> HeldItem = heldItems[heldItemIndexes.IndexOf(index)];
-				var heldKey = HeldItem.Key;
-				var heldValue = HeldItem.Value;
+            var keyRect = position;
+            keyRect.width /= 2;
+            keyRect.width -= 4;
+            EditorGUI.BeginChangeCheck();
+            var newKey = (TK)DoField(keyRect, typeof(TK), key);
+            if (EditorGUI.EndChangeCheck()) {
+                if(tempDict.ContainsKey(newKey)){
+                    tempDict.Remove(newKey);
+                }
+                tempDict.Add(newKey, value);
+                try {
+                    if(_Dictionary.ContainsKey(key))
+                        _Dictionary.Remove(key);
+                    _Dictionary.Add(newKey, value);
+                }
+                catch (Exception e) {
+                    UnityEngine.Debug.Log(e.Message);
+                }
+                break;
+            }
 
-				position.y += 17f;
+            var valueRect = position;
+            valueRect.x = position.width / 2 + 15;
+            valueRect.width = keyRect.width - kButtonWidth;
+            EditorGUI.BeginChangeCheck();
+            value = DoField(valueRect, typeof(TV), value);
+            if (EditorGUI.EndChangeCheck()) {
+                _Dictionary[key] = value;
+                break;
+            }
 
-				var heldKeyRect = position;
-				heldKeyRect.width /= 2;
-				heldKeyRect.width -= 4;
-				EditorGUI.BeginChangeCheck ();
-				var newHeldKey = DoField (heldKeyRect, typeof(TK), heldKey);
+            var removeRect = valueRect;
+            removeRect.x = valueRect.xMax + 2;
+            removeRect.width = kButtonWidth;
 
-				if (EditorGUI.EndChangeCheck ()) {
-					try {
-						if (_Dictionary.ContainsKey (newHeldKey)) {
-							HeldItem = new KeyValuePair<TK, TV> (newHeldKey, HeldItem.Value);
-							heldItems[heldItemIndexes.IndexOf(index)] = HeldItem;
-						} else {
-							_Dictionary.Add(newHeldKey, heldValue); // NEED TO ADD AT INDEX...
-							heldItems.RemoveAt(heldItemIndexes.IndexOf(index));
-							heldItemIndexes.RemoveAt(heldItemIndexes.IndexOf(index));
-							heldItemCount--;
-							if(heldItemCount == 0)
-								itemHeld = false;
-						}
-					} catch (Exception e) {
-						UnityEngine.Debug.Log (e.Message);
-					}
-				} else {
-					var heldValueRect = position;
-					heldValueRect.x = position.width / 2 + 15;
-					heldValueRect.width = heldKeyRect.width - kButtonWidth;
-					EditorGUI.BeginChangeCheck ();
-					heldValue = DoField (heldValueRect, typeof(TV), heldValue);
-					if (EditorGUI.EndChangeCheck ()) {
-						HeldItem = new KeyValuePair<TK, TV> (HeldItem.Key, heldValue);
-					} else {
-						var heldRemoveRect = heldValueRect;
-						heldRemoveRect.x = heldValueRect.xMax + 2;
-						heldRemoveRect.width = kButtonWidth;
-
-						if (UtilDebug.SHOW_DEBUG_BUTTONS) {
-							if (GUI.Button (heldRemoveRect, new GUIContent ("x", "Remove item"), EditorStyles.miniButtonRight)) {
-								heldItems.RemoveAt(heldItemIndexes.IndexOf(index));
-								heldItemIndexes.RemoveAt(heldItemIndexes.IndexOf(index));
-								heldItemCount--;
-								if(heldItemCount == 0)
-									itemHeld = false;
-							}
-						}
-					}
-				}
-				index++;
-			}
-			#endregion
-			#region NOT HELD
-			var key = item.Key;
-			var value = item.Value;
-
-			position.y += 17f;
-
-			var keyRect = position;
-			keyRect.width /= 2;
-			keyRect.width -= 4;
-			EditorGUI.BeginChangeCheck();
-			var newKey = DoField(keyRect, typeof(TK), key);
-
-			if (EditorGUI.EndChangeCheck())
-			{
-				try
-				{
-					if(!newKey.Equals(key)){
-						if(_Dictionary.ContainsKey(newKey)){
-							heldItems.Add(new KeyValuePair<TK,TV>(newKey,value));
-							heldItemIndexes.Add(index);
-							heldItemCount++;
-							if(!itemHeld)
-								itemHeld = true;
-
-							_Dictionary.Remove(key);
-						}
-						else{
-							_Dictionary.Remove(key);
-							_Dictionary.Add(newKey, value);
-						}
-					}
-				}
-				catch(Exception e)
-				{
-					UnityEngine.Debug.LogError(e.Message);
-				}
-				break;
-			}
-
-			var valueRect = position;
-			valueRect.x = position.width / 2 + 15;
-			valueRect.width = keyRect.width - kButtonWidth;
-			EditorGUI.BeginChangeCheck();
-			value = DoField(valueRect, typeof(TV), value);
-			if (EditorGUI.EndChangeCheck())
-			{
-				_Dictionary[key] = value;
-				break;
-			}
-
-			var removeRect = valueRect;
-			removeRect.x = valueRect.xMax + 2;
-			removeRect.width = kButtonWidth;
-
-			if (UtilDebug.SHOW_DEBUG_BUTTONS) {
-				if (GUI.Button(removeRect, new GUIContent("x", "Remove item"), EditorStyles.miniButtonRight)) {
-					RemoveItem(key);
-					if (itemHeld) {
-						List<int> heldItemsIndexesCopy = new List<int>(heldItemIndexes);
-						foreach(int a in heldItemIndexes){
-							if(index<a)
-								heldItemsIndexesCopy[heldItemsIndexesCopy.IndexOf(a)]--;
-						}
-						heldItemIndexes = heldItemsIndexesCopy;
-						heldItemsIndexesCopy.Clear();
-						heldItemsIndexesCopy = null;
-					}
-					index--;
-					break;
-				}
-			}
-
-			index = index + 1;
-			#endregion
-		}
-		#region HELDAFTER
-		while (heldItemIndexes.Contains(index)) {
-			KeyValuePair<TK,TV> HeldItem = heldItems[heldItemIndexes.IndexOf(index)];
-			var heldKey = HeldItem.Key;
-			var heldValue = HeldItem.Value;
-
-			position.y += 17f;
-
-			var heldKeyRect = position;
-			heldKeyRect.width /= 2;
-			heldKeyRect.width -= 4;
-			EditorGUI.BeginChangeCheck ();
-			var newHeldKey = DoField (heldKeyRect, typeof(TK), heldKey);
-
-			if (EditorGUI.EndChangeCheck ()) {
-				try {
-					if (_Dictionary.ContainsKey (newHeldKey)) {
-						HeldItem = new KeyValuePair<TK, TV> (newHeldKey, HeldItem.Value);
-						heldItems[heldItemIndexes.IndexOf(index)] = HeldItem;
-					} else {
-						_Dictionary.Add(newHeldKey, heldValue); // NEED TO ADD AT INDEX...
-						heldItems.RemoveAt(heldItemIndexes.IndexOf(index));
-						heldItemIndexes.RemoveAt(heldItemIndexes.IndexOf(index));
-						heldItemCount--;
-						if(heldItemCount == 0)
-							itemHeld = false;
-					}
-				} catch (Exception e) {
-					UnityEngine.Debug.Log (e.Message);
-				}
-			} else {
-				var heldValueRect = position;
-				heldValueRect.x = position.width / 2 + 15;
-				heldValueRect.width = heldKeyRect.width - kButtonWidth;
-				EditorGUI.BeginChangeCheck ();
-				heldValue = DoField (heldValueRect, typeof(TV), heldValue);
-				if (EditorGUI.EndChangeCheck ()) {
-					HeldItem = new KeyValuePair<TK, TV> (HeldItem.Key, heldValue);
-				} else {
-					var heldRemoveRect = heldValueRect;
-					heldRemoveRect.x = heldValueRect.xMax + 2;
-					heldRemoveRect.width = kButtonWidth;
-
-					if (UtilDebug.SHOW_DEBUG_BUTTONS) {
-						if (GUI.Button (heldRemoveRect, new GUIContent ("x", "Remove item"), EditorStyles.miniButtonRight)) {
-							heldItems.RemoveAt(heldItemIndexes.IndexOf(index));
-							heldItemIndexes.RemoveAt(heldItemIndexes.IndexOf(index));
-							heldItemCount--;
-							if(heldItemCount == 0)
-								itemHeld = false;
-						}
-					}
-				}
-			}
-			index++;
-		}
-		#endregion
+            if (GUI.Button(removeRect, new GUIContent("x", "Remove item"), EditorStyles.miniButtonRight))
+            {
+                RemoveItem(key);
+                break;
+            }
+        }
 	}
 
 	private void RemoveItem(TK key)
@@ -897,35 +591,28 @@ public class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
 
 	private void CheckInitialize(SerializedProperty property, GUIContent label)
 	{
-		//UnityEngine.Debug.Log ("CHECKINIT 1: "+(_Dictionary != null).ToString());
 		if (_Dictionary == null)
 		{
-			heldItems = new List<KeyValuePair<TK, TV>> ();
-			heldItemIndexes = new List<int> ();
-			itemHeld = false;
-			heldItemCount = 0;
-			//UnityEngine.Debug.Log ("CHECKINIT 2: "+(_Dictionary != null).ToString());
 			var target = property.serializedObject.targetObject;
 			_Dictionary = fieldInfo.GetValue(target) as SerializableDictionary<TK, TV>;
-			//UnityEngine.Debug.Log ("CHECKINIT 3: "+(_Dictionary != null).ToString());
-			if (_Dictionary == null) {
-			//	UnityEngine.Debug.Log ("CHECKINIT 4: " + (_Dictionary != null).ToString ());
-				_Dictionary = new SerializableDictionary<TK, TV> ();
-				fieldInfo.SetValue (target, _Dictionary);
-			//	UnityEngine.Debug.Log ("CHECKINIT 5: " + (_Dictionary != null).ToString ());
-			} else
-				EditorUtility.SetDirty (property.serializedObject.targetObject);
+            tempDict = new Dictionary<TK, TV>();
+			if (_Dictionary == null)
+			{
+				_Dictionary = new SerializableDictionary<TK, TV>();
+				fieldInfo.SetValue(target, _Dictionary);
+			}
+
 			_Foldout = EditorPrefs.GetBool(label.text);
 		}
-		EditorUtility.SetDirty (property.serializedObject.targetObject);
 	}
 
 	private static readonly Dictionary<Type, Func<Rect, object, object>> _Fields =
 		new Dictionary<Type,Func<Rect,object,object>>()
 	{
-		{ typeof(int), (rect, value) => EditorGUI.IntField(rect, (int)value) },
-		{ typeof(float), (rect, value) => EditorGUI.FloatField(rect, (float)value) },
-		{ typeof(string), (rect, value) => EditorGUI.TextField(rect, (string)value) },
+        { typeof(int), (rect, value) => EditorGUI.DelayedIntField(rect, (int)value) },
+        { typeof(float), (rect, value) => EditorGUI.DelayedFloatField(rect, (float)value) },
+        { typeof(double), (rect, value) => EditorGUI.DelayedDoubleField(rect, (double)value) },
+		{ typeof(string), (rect, value) => EditorGUI.DelayedTextField(rect, (string)value) },
 		{ typeof(bool), (rect, value) => EditorGUI.Toggle(rect, (bool)value) },
 		{ typeof(Vector2), (rect, value) => EditorGUI.Vector2Field(rect, GUIContent.none, (Vector2)value) },
 		{ typeof(Vector3), (rect, value) => EditorGUI.Vector3Field(rect, GUIContent.none, (Vector3)value) },
@@ -933,7 +620,7 @@ public class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
 		{ typeof(Rect), (rect, value) => EditorGUI.RectField(rect, (Rect)value) },
 	};
 
-	private static T DoField<T>(Rect rect, Type type, T value)
+	public static T DoField<T>(Rect rect, Type type, T value)
 	{
 		Func<Rect, object, object> field;
 		if (_Fields.TryGetValue(type, out field))
@@ -945,20 +632,119 @@ public class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
 		if (typeof(UnityObject).IsAssignableFrom(type))
 			return (T)(object)EditorGUI.ObjectField(rect, (UnityObject)(object)value, type, true);
 
+        if (typeof(Color).IsAssignableFrom(type))
+            return (T)(object)EditorGUI.ColorField(rect, (Color)(object)value);
+
+        if ((typeof(T) == typeof(string)))
+            return (T)Convert.ChangeType(EditorGUI.DelayedTextField(rect, (string)(object)(value)), typeof(T));
+        /*if(IsDictType(type)){
+            IDictionary ick = (IDictionary)value;
+            Type dictType = value.GetType();
+            Type[] dictArgs = { ick.GetType().GetGenericArguments()[0], ick.GetType().GetGenericArguments()[1] };
+            IDictionary temp = (IDictionary)Activator.CreateInstance(dictType);
+
+            Vector2 position = rect.position;
+            Vector2 fieldSize = new Vector2(100f, 15f);
+            foreach (DictionaryEntry x in ick){ // TODO: Invoke the DoField     
+                var key = x.Key;
+                var val = x.Value;
+
+                Rect keyRect = new Rect(position, fieldSize);
+                Rect valRect = new Rect(position+rightWardShift, fieldSize);
+                MethodInfo method = dictType.GetMethod("DoField", dictArgs);
+                //method.Invoke();
+                    
+                temp[key] = val;
+            }
+            return (T)ick;
+        }*/
+        //if(IsCollectionType(type)) //TODO: Edit values
+        //{
+        //    ICollection ick = ((ICollection)value);
+        //    Type t = ick.GetType();
+        //    return (T) DoCollectionField(rect,typeof(T),(ICollection)value);
+        //}
+        /*
+        if(IsEnumerableType(type)){ //TODO: Edit values
+            
+        //}*/
+        //if(value is ScriptableObject){ //TODO: Edit values
+        //    return Editor.CreateEditor(value,type);
+        //}
 		UnityEngine.Debug.Log("Type is not supported: " + type);
 		return value;
 	}
+    /*private static K DoCollectionField<K>(Rect position, Type type, K value) where K:ICollection{
+        Type listType = value.GetType();
+        Type[] typeArgs = { value.GetType().GetGenericArguments()[0] };
+        if (value == null)
+            value = (K)Activator.CreateInstance(type);
+        
+        IList ic = value.Cast<K>().ToList();
+        IList tempCollection = ((K)Activator.CreateInstance(listType)).Cast<K>().ToList();
+
+        position.height = 17f;
+        var buttonRect = position;
+        buttonRect.x = position.width - kButtonWidth + position.x;
+        buttonRect.width = kButtonWidth + 2;
+        if (GUI.Button(buttonRect, new GUIContent("+", "Add item"), EditorStyles.miniButton))
+        {
+            ConstructorInfo constructor = typeArgs[0].GetConstructor(Type.EmptyTypes);
+            ic.Add(constructor.Invoke(new object[] { }));
+        }
+
+        buttonRect.x -= kButtonWidth;
+
+        if (GUI.Button(buttonRect, new GUIContent("X", "Clear dictionary"), EditorStyles.miniButtonRight))
+        {
+            ic.Clear();
+        }
+
+        for (int i = 0; i < ic.Count; i++)
+        {
+            position.y += 17f;
+
+            var keyRect = position;
+            keyRect.width /= 2;
+            keyRect.width -= 4;
+            EditorGUILayout.LabelField(""+i);
+
+            var valueRect = position;
+            valueRect.x = position.width / 2 + 15;
+            valueRect.width = keyRect.width - kButtonWidth;
+            EditorGUI.BeginChangeCheck();
+            value = DoField(valueRect, value.GetType(), value);
+            if (EditorGUI.EndChangeCheck())
+            {
+                tempCollection.Add(value);
+                continue;
+            }
+
+            var removeRect = valueRect;
+            removeRect.x = valueRect.xMax + 2;
+            removeRect.width = kButtonWidth;
+
+            if (GUI.Button(removeRect, new GUIContent("x", "Remove item"), EditorStyles.miniButtonRight))
+            {
+                continue;
+            }
+            tempCollection.Add(value);
+        }
+
+        ic.Clear();
+        for (int j = 0; j < tempCollection.Count; j++){
+            ic.Add(tempCollection.Cast<IList>().ToArray()[j]);
+        }
+        tempCollection.Clear();
+        return (K)ic;
+    }*/
 
 	private void ClearDictionary()
 	{
 		_Dictionary.Clear();
-		heldItemCount = 0;
-		heldItemIndexes = new List<int> ();
-		heldItems = new List<KeyValuePair<TK, TV>> ();
-		itemHeld = false;
 	}
 
-	private void AddNewItem() {
+    private void AddNewItem(){
 		if (_Dictionary.Count == _Dictionary.Max && _Dictionary.IsSizeLimited) {
 			UnityEngine.Debug.Log("TOO MANY ITEMS!");
 			return;
@@ -970,12 +756,27 @@ public class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
 				i++;
 			key = (TK)Convert.ChangeType(i, typeof(TK));
 		}
-		else if (typeof(TK) == typeof(int)) { 
-			int i = 0;
-			while (_Dictionary.Keys.Contains((TK)(object)i))
-				i++;
-			key = (TK)(object)i;
-		}
+        else if (typeof(TK) == typeof(int))
+        {
+            int i = 0;
+            while (_Dictionary.Keys.Contains((TK)(object)i))
+                i++;
+            key = (TK)(object)i;
+        }
+        else if (typeof(TK) == typeof(float))
+        {
+            float i = 0.0f;
+            while (_Dictionary.Keys.Contains((TK)(object)i))
+                i++;
+            key = (TK)(object)i;
+        }
+        else if (typeof(TK) == typeof(double))
+        {
+            double i = 0.0;
+            while (_Dictionary.Keys.Contains((TK)(object)i))
+                i++;
+            key = (TK)(object)i;
+        }
 		else if (typeof(TK).IsEnum) {
 			_Dictionary.EnableLimit(Enum.GetValues(typeof(TK)).Cast<TK>().ToList<TK>().Count);
 			List<TK> possible = Enum.GetValues(typeof(TK)).Cast<TK>().Except(_Dictionary.Keys).ToList<TK>();
@@ -985,25 +786,43 @@ public class SerializableDictionaryDrawer<TK, TV> : PropertyDrawer
 				key = possible.ElementAt(0);
 			}
 		}
-		else key = default(TK);
+        else key = (typeof(TK)==typeof(string))? (TK)Convert.ChangeType("",typeof(TK)) : (IsDictType(typeof(TK))||IsCollectionType(typeof(TK)) || IsEnumerableType(typeof(TK))) ? (TK)Activator.CreateInstance(typeof(TK)) : default(TK);
 
-		var value = default(TV);
+        var value = (typeof(TV)==typeof(string))? (TV)Convert.ChangeType("",typeof(TV)) :(IsDictType(typeof(TK)) ||IsCollectionType(typeof(TV))||IsEnumerableType(typeof(TV)))? (TV)Activator.CreateInstance(typeof(TV)): default(TV);
 		try
 		{
-			_Dictionary.Add(key, value);
+			_Dictionary.Add(key, (TV)value);
 		}
 		catch(Exception e)
 		{
 			UnityEngine.Debug.Log(e.Message);
 		}
 	}
+    public static bool IsCollectionType(Type type)
+    {
+        return (type.GetInterface(nameof(ICollection)) != null);
+    }
+    public static bool IsDictType(Type type)
+    {
+        return (type.GetInterface(nameof(IDictionary)) != null);
+    }
+    public static bool IsEnumerableType(Type type)
+    {
+        return (type.GetInterface(nameof(IEnumerable)) != null);
+    }
 }
 
 // GUIDE TO CREATING PROPERTY DRAWERS IN INSPECTOR
-// [UnityEditor.CustomPropertyDrawer(typeof(SerializableDictionary<TKey, TValue> ))]
-// [Serializable] public class SerializableDictionaryType: SerializableDictionary<key_type (non-generic), 
+// [Serializable] public class Type: <key_type (non-generic), 
 //																				  value_type (non-generic)> {}
 // 
-// [UnityEditor.CustomPropertyDrawer(typeof(SerializableDictionaryType))]
-// public class SerializableDictionaryTypeDrawer : SerializableDictionaryDrawer<key_type, value_type> { }
+// [UnityEditor.CustomPropertyDrawer(typeof(Type))]
+// public class TypeDrawer : Drawer<key_type, value_type> { }
 // DONE!
+
+// IF you want to use this in a custom inspector without the base inspector drawing, use this:
+// SerializedProperty p = serializedObject.FindProperty("VariableName");
+// EditorGUI.BeginChangeCheck();
+// EditorGUILayout.PropertyField(p);
+// if (EditorGUI.EndChangeCheck())
+//     serializedObject.ApplyModifiedProperties();

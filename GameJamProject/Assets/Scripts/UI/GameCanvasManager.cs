@@ -268,6 +268,7 @@ namespace Jam
             foreach (List<PersonTrait> traits in people)
             {
                 GameObject personObj = Instantiate(personPrefab, canvas.gameObject.transform);
+                personObj.transform.localScale *= 0.85f;
                 Person person = personObj.GetComponent<Person>();
                 person.Init();
                 person.Traits = new List<PersonTrait>(); 

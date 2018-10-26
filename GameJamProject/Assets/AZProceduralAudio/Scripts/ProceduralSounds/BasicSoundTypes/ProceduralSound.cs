@@ -86,7 +86,7 @@ public abstract class ProceduralSound : MonoBehaviour {
 		UNINITIALIZED
 	}
 }
-
+[CanEditMultipleObjects]
 [CustomEditor(typeof(ProceduralSound), true)]
 public class ProceduralSoundEditor : Editor 
 {

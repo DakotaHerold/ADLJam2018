@@ -1,5 +1,5 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityUtils;
 
 public abstract class SimpleProceduralSound : ProceduralSound
 {

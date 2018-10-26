@@ -15,7 +15,10 @@ namespace Jam
         public List<PersonTrait> Traits;
 
         [HideInInspector]
-        public List<Areas> winAreas; 
+        public List<Areas> winAreas;
+
+        private TriggerSoundGenerator pickSoundGenerator;
+        private TriggerSoundGenerator placeSoundGenerator;
 
         Image uiImage;
         bool inRange = false;
@@ -24,13 +27,18 @@ namespace Jam
             get { return active; }
             set { 
                 active = value;
+                if (active)
+                    pickSoundGenerator.GenerateSound();
+                else 
+                    placeSoundGenerator.GenerateSound();
             }
         }
         private AreaUI[] areas;
 
         private void Awake()
         {
-            
+            pickSoundGenerator = (GameObject.Find("PickupSoundGenerator")).GetComponent<TriggerSoundGenerator>();
+            placeSoundGenerator = (GameObject.Find("PlaceSoundGenerator")).GetComponent<TriggerSoundGenerator>();
         }
 
         // Use this for initialization
@@ -53,7 +61,7 @@ namespace Jam
         {
             if(Input.GetMouseButtonDown(0) && inRange)
             {
-                active = !active; 
+                Active = !active; 
                 if(active == false)
                 {
                     gameManager.ClearInfoBox(); 
@@ -75,8 +83,11 @@ namespace Jam
                     }
                 }
             }
-            if(active)
+            if(active){
                 transform.position = Input.mousePosition;
+                if (!Input.GetMouseButton(0) && active)
+                    Active = !active;
+            }
         }
 
         //Detect if the Cursor starts to pass over the GameObject
