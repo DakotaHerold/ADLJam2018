@@ -1,2 +1,2 @@
-# GameJamTemplate
-A template Unity 2018.1.2f1 project for Game Jams. 
+# Project Lunch Table
+A game created for the Anti Defamation League game jam, 2018. 
